@@ -16,13 +16,20 @@ $outpath="B:\\Research\\RAWDATA\\MEDLINE\\2014\\Parsed\\MeSH";
 $inpath="B:\\Research\\RAWDATA\\MEDLINE\\2014\\XML\\zip";
 ####################################################################################
 
-# Declare which MEDLINE files to parse
-$startfile=700; $endfile=700;
-for ($fileindex=$startfile; $fileindex<=$endfile; $fileindex++) {
+####################################################################################
+# Create the output file, and print the variable names
+open (OUTFILE_ALL, ">:utf8", "$outpath\\medline14_mesh.txt") or die "Can't open subjects file: medline14_mesh.txt";
+print OUTFILE_ALL "filenum	pmid	version	";
+print OUTFILE_ALL "mesh	majortopic	type	meshgroup\n";
+####################################################################################
 
+# Declare which MEDLINE files to parse
+$startfile=1; $endfile=746;
+for ($fileindex=$startfile; $fileindex<=$endfile; $fileindex++) {
+  
     # Create the output file, and print the variable names
     open (OUTFILE, ">:utf8", "$outpath\\medline14\_$fileindex\_mesh.txt") or die "Can't open subjects file: medline14\_$fileindex\_mesh.txt";
-    print OUTFILE "filenum	owner	status	versionid	versiondate	pmid	version	";
+    print OUTFILE "filenum	pmid	version	";
     print OUTFILE "mesh	majortopic	type	meshgroup\n";
 
     # Read in XML file
@@ -51,18 +58,6 @@ sub mesh {
     # Access <MedlineCitation> array
     foreach $i (@{$data->{MedlineCitation}}) {
 
-            # Access the four elements of <MedlineCitation>: <Owner>, <Status>, <VersionID>, and <VersionDate>
-            $owner = "$i->{Owner}";
-            $status = "$i->{Status}";
-            $versionid = "$i->{VersionID}";
-            $versiondate = "$i->{VersionDate}";
-
-            # Assign the value "null" to any missing element
-            if ($owner eq "") { $owner = "null"; }
-            if ($status eq "") { $status = "null"; }
-            if ($versionid eq "") { $versionid = "null"; }
-            if ($versiondate eq "") { $versiondate = "null"; }
-
             @pmid = @{$i->{PMID}};
             @medlinejournalinfo = @{$i->{MedlineJournalInfo}};
             @meshheadinglist = @{$i->{MeshHeadingList}};
@@ -75,8 +70,11 @@ sub mesh {
             $meshheadinglistsize=@meshheadinglist;
 
             if ($meshheadinglistsize==0) {
-               print OUTFILE "$fileindex	$owner	$status	$versionid	$versiondate	$pmid	$version	";
+               print OUTFILE "$fileindex	$pmid	$version	";
                print OUTFILE "null	null	null	\n";
+               
+               print OUTFILE_ALL "$fileindex	$pmid	$version	";
+               print OUTFILE_ALL "null	null	null	\n";
             }
 
             foreach $j (@meshheadinglist) {
@@ -94,8 +92,11 @@ sub mesh {
                                     $majortopic="$l->{MajorTopicYN}";
                                     $type="Descriptor";
 
-                                    print OUTFILE "$fileindex	$owner	$status	$versionid	$versiondate	$pmid	$version	";
+                                    print OUTFILE "$fileindex	$pmid	$version	";
                                     print OUTFILE "$mesh	$majortopic	$type	$meshgroup\n";
+                                    
+                                    print OUTFILE_ALL "$fileindex	$pmid	$version	";
+                                    print OUTFILE_ALL "$mesh	$majortopic	$type	$meshgroup\n";
                             }
                             
                             foreach $l (@qualifiername) {
@@ -103,8 +104,11 @@ sub mesh {
                                     $majortopic="$l->{MajorTopicYN}";
                                     $type="Qualifier";
                                     
-                                    print OUTFILE "$fileindex	$owner	$status	$versionid	$versiondate	$pmid	$version	";
+                                    print OUTFILE "$fileindex	$pmid	$version	";
                                     print OUTFILE "$mesh	$majortopic	$type	$meshgroup\n";
+                                    
+                                    print OUTFILE_ALL "$fileindex	$pmid	$version	";
+                                    print OUTFILE_ALL "$mesh	$majortopic	$type	$meshgroup\n";
                             }
                     }
             }

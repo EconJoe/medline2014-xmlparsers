@@ -10,16 +10,21 @@ use XML::Simple;
 # The inpath should point to Data_Replication-->ReplicationSample-->ReplicationXML-->MEDLINE
 
 # Set path names
-$outpath="B:\\Research\\HITS\\HITS1\\TextReplication\\TextReplication2\\Data_Replication\\Parsed\\Dates";
-$inpath="B:\\Research\\HITS\\HITS1\\TextReplication\\TextReplication2\\Data_Replication\\ReplicationSample\\ReplicationXML\\MEDLINE";
+$outpath="B:\\Research\\RAWDATA\\MEDLINE\\2014\\Parsed\\Dates";
+$inpath="B:\\Research\\RAWDATA\\MEDLINE\\2014\\XML\\zip";
 ####################################################################################
 
+####################################################################################
+open (OUTFILE_ALL, ">:utf8", "$outpath\\medline14_dates.txt") or die "Can't open subjects file: medline14_dates.txt";
+print OUTFILE_ALL "filenum	pmid	version	";
+print OUTFILE_ALL "pubyear	articyear	pubmonth	articmonth	pubday	articday	medlinedate\n";
+####################################################################################
 
 $startfile=1; $endfile=746;
 for ($fileindex=$startfile; $fileindex<=$endfile; $fileindex++) {
-
-    open (OUTFILE, ">:utf8", "$outpath\\medline14\_$fileindex\_dates.txt") or die "Can't open subjects file: medline14\_$fileindex\_dates.txt";
-    print OUTFILE "filenum	owner	status	versionid	versiondate	pmid	version	";
+  
+  open (OUTFILE, ">:utf8", "$outpath\\medline14\_$fileindex\_dates.txt") or die "Can't open subjects file: medline14\_$fileindex\_dates.txt";
+    print OUTFILE "filenum	pmid	version	";
     print OUTFILE "pubyear	articyear	pubmonth	articmonth	pubday	articday	medlinedate\n";
 
     print "Reading in file: medline14n0$fileindex.xml\n";
@@ -44,11 +49,6 @@ sub date {
     # access <MedlineCitation> array
     foreach $e (@{$data->{MedlineCitation}}) {
 
-            $owner = $e->{Owner};
-            $status = $e->{Status};
-            $versionid = $e->{VersionID};
-            $versiondate = $e->{VersionDate};
-
             $pmid = $e->{PMID}->{content};
             $version = $e->{PMID}->{Version};
 
@@ -61,11 +61,6 @@ sub date {
             $articday = $e->{Article}->{ArticleDate}->{Day};
             
             $medlinedate = $e->{Article}->{Journal}->{JournalIssue}->{PubDate}->{MedlineDate};
-
-            if ($owner eq "") { $owner="null"; }
-            if ($status eq "") { $status="null"; }
-            if ($versionid eq "") { $versionid="null"; }
-            if ($versiondate eq "") { $versiondate="null"; }
 
             if ($pmid eq "") { $pmid="null"; }
             if ($version eq "") { $version="null"; }
@@ -80,7 +75,10 @@ sub date {
 
             if ($medlinedate eq "") { $medlinedate="null"; }
 
-            print OUTFILE "$fileindex	$owner	$status	$versionid	$versiondate	$pmid	$version	";
+            print OUTFILE "$fileindex	$pmid	$version	";
             print OUTFILE "$pubyear	$articyear	$pubmonth	$articmonth	$pubday	$articday	$medlinedate\n";
+            
+            print OUTFILE_ALL "$fileindex	$pmid	$version	";
+            print OUTFILE_ALL "$pubyear	$articyear	$pubmonth	$articmonth	$pubday	$articday	$medlinedate\n";
     }
 }
